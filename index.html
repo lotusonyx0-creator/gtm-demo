@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>GTM Demo – GA4 Events Training</title>
+
+  <!-- dataLayer を事前定義（保険） -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TKXJZDPH');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <!-- デモ用スクリプト（カスタムイベント発火など） -->
+  <script>
+    function pushVirtualPage(path, title) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'virtual_pageview',    // CE – virtual_pageview
+        page_path: path,              // dlv.page_path
+        page_title: title             // dlv.page_title
+      });
+      console.log('virtual_pageview pushed:', path, title);
+    }
+
+    function pushViewItem() {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'view_item',           // CE – view_item
+        ecommerce: {
+          value: 1980,
+          items: [
+            {
+              item_id: 'ITEM_001',
+              item_name: 'デモ商品A',
+              price: 1980,
+              quantity: 1
+            }
+          ]
+        }
+      });
+      console.log('view_item pushed');
+    }
+
+    function pushAddToCart() {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'add_to_cart',         // CE – add_to_cart
+        ecommerce: {
+          value: 1980,
+          items: [
+            {
+              item_id: 'ITEM_001',
+              item_name: 'デモ商品A',
+              price: 1980,
+              quantity: 1
+            }
+          ]
+        }
+      });
+      console.log('add_to_cart pushed');
+    }
+
+    function pushAjaxFormSuccess() {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'ajax_form_success'    // CE – ajax_form_success
+      });
+      const msg = document.getElementById('ajax-result');
+      if (msg) {
+        msg.textContent = 'AJAXで送信完了（ダミー）しました。';
+      }
+      console.log('ajax_form_success pushed');
+    }
+
+    function throwJsError() {
+      // わざと存在しない関数を呼んで JS エラー発生
+      nonExistentFunctionCall();
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0 16px 80px;
+      line-height: 1.6;
+    }
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+    }
+    header p {
+      margin: 0;
+      color: #555;
+    }
+    section {
+      margin: 24px 0;
+      padding: 16px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+    }
+    .label {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f5f5f5;
+      margin-left: 4px;
+      color: #555;
+    }
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      background: #fff;
+      cursor: pointer;
+      margin: 4px 0;
+    }
+    .btn-primary {
+      background: #333;
+      color: #fff;
+    }
+    .links a {
+      display: inline-block;
+      margin-right: 12px;
+      margin-bottom: 4px;
+    }
+    .spacer {
+      height: 800px;
+      background: linear-gradient(180deg, #fafafa, #fff);
+      margin: 8px 0;
+    }
+    #observe-me {
+      padding: 24px;
+      background: #ffe9b5;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    form {
+      margin-top: 8px;
+    }
+    form input, form textarea {
+      width: 100%;
+      max-width: 400px;
+      padding: 6px;
+      margin: 4px 0 10px;
+      box-sizing: border-box;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    small {
+      color: #777;
+      display: block;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKXJZDPH"
+            height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <header>
+    <h1>GTM Demo サイト（GA4 イベント学習用）</h1>
+    <p>GTMコンテナ <code>GTM-TKXJZDPH</code> 用のテストページ。</p>
+    <small>GA4 Measurement ID: <code>G-H9DZBYDKJH</code>（コンテナ側の設定に依存）</small>
+  </header>
+
+  <!-- 1. ページビュー関連 -->
+  <section id="section-pageview">
+    <h2>1. ページビュー / 仮想PV</h2>
+    <p>
+      通常の <code>page_view</code> は DOM Ready で自動送信されます。<br>
+      下のボタンで <code>virtual_pageview</code> のカスタムイベントを送信。
+      <span class="label">Tag: GA4 – event – page_view (virtual)</span>
+    </p>
+    <button class="btn btn-primary"
+            onclick="pushVirtualPage('/virtual/page1', 'バーチャルページ1')">
+      仮想ページ1を計測
+    </button>
+    <button class="btn"
+            onclick="pushVirtualPage('/virtual/thanks', 'サンクスページ（仮想）')">
+      仮想サンクスページを計測
+    </button>
+    <small>dataLayer.push({ event: 'virtual_pageview', page_path: '…', page_title: '…' })</small>
+  </section>
+
+  <!-- 2. クリック計測 -->
+  <section id="section-clicks">
+    <h2>2. クリック計測</h2>
+
+    <h3>2-1. OKボタン クリック</h3>
+    <p>
+      ID <code>btn-ok</code> のボタンをクリック。
+      <span class="label">Trigger: Click – Button (btn-ok)</span>
+      <span class="label">Tag: GA4 – event – demo_click_ok</span>
+    </p>
+    <button id="btn-ok" class="btn btn-primary">
+      OKボタン（id="btn-ok"）
+    </button>
+
+    <h3>2-2. 外部リンククリック</h3>
+    <p>
+      Yahoo へのリンククリックでアウトバウンド計測。
+      <span class="label">Trigger: Click – Outbound</span>
+      <span class="label">Tag: GA4 – event – outbound_click</span>
+    </p>
+    <div class="links">
+      <a href="https://www.yahoo.co.jp/" target="_blank" rel="noopener">
+        Yahoo! JAPAN へ
+      </a>
+    </div>
+
+    <h3>2-3. ファイルダウンロード</h3>
+    <p>
+      拡張子が <code>.pdf / .zip / .xlsx</code> のリンククリック。
+      <span class="label">Trigger: Click – File Download</span>
+      <span class="label">Tag: GA4 – event – file_download</span>
+    </p>
+    <div class="links">
+      <a href="/files/demo.pdf" target="_blank">PDFをダウンロード（ダミーURL）</a><br>
+      <a href="/files/demo.zip" target="_blank">ZIPをダウンロード（ダミーURL）</a><br>
+      <a href="/files/demo.xlsx" target="_blank">XLSXをダウンロード（ダミーURL）</a>
+    </div>
+
+    <h3>2-4. tel / mailto クリック</h3>
+    <p>
+      <span class="label">Trigger: Click – tel / Click – mailto</span>
+      <span class="label">Tag: GA4 – event – tel_click / mailto_click</span>
+    </p>
+    <div class="links">
+      <a href="tel:0312345678">お電話はこちら（tel:0312345678）</a><br>
+      <a href="mailto:info@example.com">メールで問い合わせ（mailto:info@example.com）</a>
+    </div>
+  </section>
+
+  <!-- 3. スクロール / 要素の可視性 -->
+  <section id="section-scroll">
+    <h2>3. スクロール / 要素の可視性</h2>
+    <p>
+      下にスクロールして 50% / 75% 到達で <code>scroll</code> イベント。
+      <span class="label">Trigger: Scroll – 50/75</span>
+      <span class="label">Tag: GA4 – event – scroll_depth</span>
+    </p>
+    <div class="spacer">
+      スクロール用の余白コンテンツエリアです。<br>
+      スクロールしていくと下部に <code>#observe-me</code> 要素が出てきます。
+    </div>
+    <div id="observe-me">
+      このボックスが 50% 以上表示されると<br>
+      <code>element_visibility</code> イベントが発火します。<br>
+      <span class="label">Trigger: Visibility – #observe-me</span>
+      <span class="label">Tag: GA4 – event – element_visible</span>
+    </div>
+  </section>
+
+  <!-- 4. フォーム送信 / AJAX送信 -->
+  <section id="section-forms">
+    <h2>4. フォーム送信 / AJAXフォーム</h2>
+
+    <h3>4-1. 通常フォーム送信</h3>
+    <p>
+      このフォームを送信すると <code>Form – Submit</code> トリガーが動きます。
+      <span class="label">Trigger: Form – Submit</span>
+      <span class="label">Tag: GA4 – event – form_submit</span>
+    </p>
+    <form action="/submit" method="post">
+      <label>お名前</label><br>
+      <input type="text" name="name" placeholder="山田 太郎" /><br>
+      <label>メッセージ</label><br>
+      <textarea name="message" rows="3" placeholder="お問い合わせ内容"></textarea><br>
+      <button type="submit" class="btn btn-primary">フォーム送信</button>
+    </form>
+    <small>実際の送信先はダミーなので 404 等になってOK</small>
+
+    <h3>4-2. AJAXフォーム（風）</h3>
+    <p>
+      下のボタンを押すと、サーバー通信の代わりに
+      <code>ajax_form_success</code> を dataLayer に push します。
+      <span class="label">Trigger: CE – ajax_form_success</span>
+      <span class="label">Tag: GA4 – event – ajax_form_success</span>
+    </p>
+    <button type="button" class="btn" onclick="pushAjaxFormSuccess()">
+      AJAXで送信完了（ダミー）
+    </button>
+    <div id="ajax-result" style="margin-top:8px; color:#007700;"></div>
+  </section>
+
+  <!-- 5. JS エラー計測 -->
+  <section id="section-js-error">
+    <h2>5. JSエラー計測</h2>
+    <p>
+      ボタンを押すと、わざと存在しない関数を呼んで JavaScript エラーを発生させます。<br>
+      <span class="label">Trigger: JS Error – All</span>
+      <span class="label">Tag: GA4 – event – js_error (exception)</span>
+    </p>
+    <button type="button" class="btn btn-primary" onclick="throwJsError()">
+      JSエラーを発生させる
+    </button>
+    <small>エラー内容は GTM の <code>Error Message / URL / Line</code> 変数に入ります。</small>
+  </section>
+
+  <!-- 6. タイマー -->
+  <section id="section-timer">
+    <h2>6. タイマー計測</h2>
+    <p>
+      ページ読み込み後 3秒で <code>gtm.timer</code> イベントが 1回だけ発火します。<br>
+      <span class="label">Trigger: Timer – 3s once</span>
+      <span class="label">Tag: GA4 – event – timer_3s (timer_tick)</span>
+    </p>
+    <small>条件: Page URL に <code>/</code> を含む（本ページ想定）</small>
+  </section>
+
+  <!-- 7. EC (view_item / add_to_cart) -->
+  <section id="section-ecommerce">
+    <h2>7. ECイベント（view_item / add_to_cart）</h2>
+    <p>
+      dataLayer 経由で <code>view_item</code> / <code>add_to_cart</code> を送信します。<br>
+      <span class="label">Trigger: CE – view_item / add_to_cart</span>
+      <span class="label">Tag: GA4 – event – view_item / add_to_cart</span>
+    </p>
+
+    <div style="border:1px solid #ddd; padding:12px; border-radius:8px; max-width:320px;">
+      <strong>デモ商品A</strong><br>
+      価格: ¥1,980<br>
+      <button class="btn" onclick="pushViewItem()">
+        商品詳細を見る（view_item）
+      </button><br>
+      <button class="btn btn-primary" onclick="pushAddToCart()">
+        カートに追加（add_to_cart）
+      </button>
+    </div>
+
+    <small>
+      dataLayer.push({ event: 'view_item' / 'add_to_cart', ecommerce: { value, items[…] } })
+    </small>
+  </section>
+
+</body>
+</html>
